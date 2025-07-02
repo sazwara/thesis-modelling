@@ -1,0 +1,53 @@
+echo "# thesis-modelling" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/sazwara/thesis-modelling.git
+git push -u origin main
+
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+
+st.title("Franchising Profit Models — Sensitivity Explorer")
+
+# 1) Core economic parameters
+pi      = st.slider("Potential profit per outlet (π)",      0.0, 1.0, 0.23,  0.01)
+C_op    = st.slider("Const. operational cost (C_op)",       0.0, 1.0, 0.20,  0.01)
+
+# 2) Endogenous‐overhead parameters
+H       = st.slider("Fixed HQ overhead (H)",                0.0, 5e7, 1e7, 1e6)
+v       = st.slider("Per‐outlet variable cost (v)",         0.0, 5e4, 5e3,  1e3)
+N       = st.slider("Total number of outlets (N)",          1,   1e4, 500,   50)
+
+# 3) Effort / incentive parameters
+a_star  = st.slider("Chosen effort level (a*)",             0.0, 10.0, 1.0,   0.1)
+beta    = st.slider("Franchisee efficiency (β)",            0.1, 10.0, 1.0,   0.1)
+kappa   = st.slider("Effort cost curvature (κ)",            0.1, 10.0, 1.0,   0.1)
+
+# 4) Duplication‐penalty parameter
+delta   = st.slider("Duplication penalty (δ)",              0.0, 1.0, 0.10,  0.01)
+
+# Model helper functions
+c = lambda a: 0.5 * kappa * a**2
+p = lambda a: 1 - np.exp(-beta * a)
+C_op_F = lambda F: H + v * (1 - F) * N
+
+# Domain of F
+F = np.linspace(0, 1, 200)
+
+# Compute profit curves
+P_base = (1-F)*(pi - C_op)         + F*(p(a_star)*pi - c(a_star))
+P_endh = (1-F)*(pi - C_op_F(F))    + F*(p(a_star)*pi - c(a_star))
+P_dup  = P_endh - delta * F * (1 - F)
+
+# Plot
+fig, ax = plt.subplots()
+ax.plot(F, P_base, label="Baseline")
+ax.plot(F, P_endh, label="Endogenous overhead")
+ax.plot(F, P_dup,  label="With duplication penalty")
+ax.set_xlabel("Franchising intensity  F")
+ax.set_ylabel("Total profit  P(F)")
+ax.legend()
+st.pyplot(fig)
