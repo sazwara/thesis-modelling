@@ -2,7 +2,33 @@
 
 Code supporting my MSc Business Economics thesis at the University of Amsterdam, examining the relationship between franchising intensity and financial performance among US fast-food franchisors.
 
-The project combines empirical panel-data analysis with a theoretical model of franchising and profit. The empirical analysis compares linear and non-linear specifications, while the appendix explores how the theoretical model responds to changes in its parameters.
+The project combines empirical panel-data analysis in Stata with theoretical modelling and an interactive sensitivity explorer in Python.
+
+**[Open the interactive dashboard](https://thesis-modelling-sensitivity-analysis.streamlit.app/)**
+
+## Interactive sensitivity explorer
+
+The Streamlit dashboard turns the thesis appendix’s sensitivity analysis into an interactive application. Users can adjust model assumptions and inspect how the relationship between franchising intensity and performance changes.
+
+It implements three models:
+
+| Model | Main assumption |
+|---|---|
+| Constant overhead | Company-operated outlets face a constant operating cost |
+| Endogenous overhead | Operating costs depend on franchising intensity and outlet scale |
+| Overhead and duplication | Maintaining company-operated and franchised structures incurs an additional duplication cost |
+
+The dashboard includes:
+
+- Controls for potential profit, operating costs, outlet scale, franchisee effort, effort effectiveness, and duplication costs.
+- Interactive performance curves with best-performing franchising shares marked.
+- A saved comparison scenario for inspecting parameter changes.
+- Comparisons across multiple values of a selected parameter.
+- An optional graph displaying all three models together.
+- Downloads of curve data and parameter settings.
+- Explanations of the equations, units, and assumptions.
+
+The equations follow the thesis’s theoretical framework. Preset parameter values are illustrative. Performance is expressed in normalised units, and the application does not re-estimate the empirical regressions or forecast a particular firm.
 
 ## Empirical analysis
 
@@ -15,50 +41,38 @@ The Stata workflow covers:
 - Clustering standard errors at the firm level.
 - Checking robustness across alternative financial outcomes.
 - Examining heterogeneity by firm size and firm cluster.
-- Testing the quadratic relationship using the Lind–Mehlum U-test.
+- Testing quadratic relationships using the Lind–Mehlum U-test.
 - Exporting regression tables in RTF format.
 
-Return on assets is the main outcome. Alternative outcomes include profit margins, turnover measures, advertising intensity, leverage, and liquidity ratios.
+Return on assets is the main outcome.
 
 ## Where to start
 
-Open `Master Thesis Franchising .do file.do`.
+For an interactive introduction, open the dashboard linked above.
 
-The numbered sections follow the empirical workflow from preparation through estimation and reporting:
+For the Python implementation, inspect:
 
-- Sections 1–2: variable preparation and descriptive statistics.
-- Sections 3–4: main model comparisons.
-- Sections 5–7: robustness, heterogeneity, and U-shape tests.
-- Section 8: extended tables.
+- [`franchising-dashboard/model.py`](franchising-dashboard/model.py): model equations, parameter validation, and analytical maxima and minima.
+- [`franchising-dashboard/app.py`](franchising-dashboard/app.py): controls, graphs, comparisons, and downloads.
 
-## Interactive sensitivity explorer — in development
-
-The Streamlit draft is intended to turn the thesis appendix’s sensitivity analysis into an interactive application.
-
-Users would adjust model parameters and see the corresponding profit curves update. The prototype includes controls for operating costs, headquarters overhead, outlet count, franchisee effort and efficiency, effort costs, and a duplication penalty.
-
-This component visualises the theoretical model; it does not re-estimate the empirical regressions when parameters change. The current draft requires preparation before it can run as a Streamlit application.
+For the empirical analysis, open `Master Thesis Franchising .do file.do`. Its numbered sections follow the workflow from preparation through model comparison, robustness checks, heterogeneity analysis, and reporting.
 
 ## Repository contents
 
-| File | Purpose |
+| File or folder | Purpose |
 |---|---|
-| `Master Thesis Franchising .do file.do` | Main empirical analysis |
-| `Thesis_Dataset_Clustered2.xlsx` | Compiled input workbook |
-| `dashboard` | Draft Python/Streamlit sensitivity explorer |
+| `Master Thesis Franchising .do file.do` | Main Stata analysis |
+| `Thesis_Dataset_Clustered2.xlsx` | Compiled empirical input workbook |
+| `franchising-dashboard/` | Streamlit application, model functions, tests, and setup instructions |
+| `dashboard` | Original exploratory draft |
 
-## Running the empirical analysis
+## Running the dashboard locally
 
-1. Download the repository.
-2. Open the main do-file in Stata.
-3. Update the working-directory path near the beginning.
-4. Confirm that the input workbook is in that directory.
-5. Run the do-file from the beginning.
+From the repository folder:
 
-The script checks for and installs `reghdfe`, `ftools`, `estout`, and `utest` when needed. Package installation requires internet access.
-
-Generated tables are saved in `tables/`. Figures are displayed in Stata.
-
-## Interpretation
-
-The empirical analysis uses observational firm data. Fixed effects and clustered standard errors do not, by themselves, establish a causal effect of franchising intensity.
+```bash
+cd franchising-dashboard
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
